@@ -2,7 +2,13 @@
 
 ## How to Run
 
-1. Clone the git repository and initialize a terminal in the directory.
+1. Open a terminal and Clone the git repository. Enter the directory.
+
+```bash
+    git clone https://github.com/saihari/Fetch-Assesment.git
+    cd Fetch-Assesment
+```
+
 2. Build the docker image using following command. Here I using the name of the docker image to be ```fetch-assignment```
 
 ```bash
