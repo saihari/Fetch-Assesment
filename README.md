@@ -55,7 +55,7 @@ Retrieve messages from the sqs queue in batches, once each message is successful
 
 2. What other components would you want to add to make this production ready?
 
-    I would create another queue or s3 bucket to store and debug deformeded messages or failed messages. I would also place monitoring and alerting mechanisms to track resource utilization and send alerts if we hit/ are near resource limits.
+    I would create another queue or s3 bucket to store and debug deformeded messages or failed messages. I would also place monitoring and alerting mechanisms to track resource utilization and send alerts if we hit/ are near resource limits. Add an application scerets manager to store database credentials
 
 3. How can this application scale with a growing dataset?
 
@@ -80,3 +80,5 @@ Retrieve messages from the sqs queue in batches, once each message is successful
 2. Explore advanced data anonymization techniques.
 
 3. Optimize the batch size calculation.
+
+4. Convert the static variables declared to application secrets and environment variables except the ```ALL_COLUMNS``` static variable.
