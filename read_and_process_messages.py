@@ -83,17 +83,17 @@ def process_data(data: list) -> None:
         if message.get("app_version"):
             message["app_version"] = int(message.get("app_version")[0])
 
+        # Adding create_date
+        message["create_date"] = date.today()
+
         # Ensuring all columns are present in the message
         for each in ALL_COLUMNS:
-            if message.get(each):
+            if not message.get(each):
                 message[each] = None
 
         df.append(message)
 
     df = pd.DataFrame.from_dict(df)
-
-    # Adding create_date
-    df["create_date"] = date.today()
 
     # Ensuring extra columns are not present
     extra_columns = [each for each in df.columns if each not in ALL_COLUMNS]
@@ -187,7 +187,7 @@ if __name__ == "__main__":
         count = 0
 
         # Calculate Number of messages to retrieve in each batch
-        batch_size = ceil(num_messages / os.cpu_count())
+        batch_size = ceil(num_messages / num_cpus)
 
         # List to hold process_data function call objects via multiprocessing
         processes = []
@@ -237,7 +237,6 @@ if __name__ == "__main__":
                 data.append(message["Body"])
 
             count += len(data)
-            print(len(data))
 
             # process_data(data=data)
             process = multiprocessing.Process(target=process_data, args=(data,))
