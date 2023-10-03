@@ -1,5 +1,11 @@
 # Fetch-Assesment: ETL off a SQS Queue
 
+## Update 3rd October, 2023
+
+Resolved following issues:
+    1. Implemented mechanisms to ensure duplicate messages are not pushed.
+    2. Improved functionality to detect invalid messages.
+
 ## How to Run
 
 1. Open a terminal and Clone the git repository. Enter the directory.

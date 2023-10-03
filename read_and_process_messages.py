@@ -100,6 +100,10 @@ def process_data(data: list) -> None:
     if extra_columns:
         df.drop(extra_columns, axis=1, inplace=True)
 
+    # Cleaning rows where the values are NA or NONE for all columns except for
+    # the "create_date" column as create_date is defaulted to represent today's date
+    df = df[~(df.notna().sum(axis=1) <= 1)]
+
     # If there are no messages to upload after processing
     if df.shape[0] == 0:
         return
@@ -189,9 +193,7 @@ if __name__ == "__main__":
         # Calculate Number of messages to retrieve in each batch
         batch_size = ceil(num_messages / num_cpus)
 
-        # List to hold process_data function call objects via multiprocessing
-        processes = []
-
+        data = []  # List to store each message body
         while True:
             # Receive messages
 
@@ -215,11 +217,9 @@ if __name__ == "__main__":
                 print("No more messages to receive")
                 break
 
-            data = []  # List to store each message body
-
             # Process messages
             for message in response["Messages"]:
-                print("Message: ", message["Body"])
+                # print("Message: ", message["Body"])
 
                 try:
                     # Delete received message
@@ -238,12 +238,34 @@ if __name__ == "__main__":
 
             count += len(data)
 
-            # process_data(data=data)
-            process = multiprocessing.Process(target=process_data, args=(data,))
-            processes.append(process)
-            process.start()
+        # Removing Duplicate messages
+        data = list(set(data))
 
-        # wait for all processes to complete
+        # List to hold process_data function call objects via multiprocessing
+        processes = []
+
+        # Re-calculate batch size after deduplicating messages
+        batch_size = ceil(len(data) / num_cpus)
+
+        # Processing the data by leveraging multi processing
+        for i in range(num_cpus):
+            batch = data[i * batch_size : (i + 1) * batch_size]
+
+            if len(batch) != 0:
+                try:
+                    process = multiprocessing.Process(
+                        target=process_data, args=(batch,)
+                    )
+                    processes.append(process)
+                    process.start()
+                except Exception as e:
+                    error_traceback = traceback.format_exc()
+                    print(
+                        f"Exception Occured: \n Error: {e}, \n ErrorTraceback: \n{error_traceback}"
+                    )
+                    raise Exception("Unable to Multi-Process Messages")
+
+        # Wait for all processes to complete
         [process.join() for process in processes]
 
         print("Number of Messages Processed: ", count)
